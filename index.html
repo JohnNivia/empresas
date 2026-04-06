@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ProcessControl · Gestión de Procesos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand">
+        <span class="brand-icon">◈</span>
+        <div>
+          <h1 class="brand-name">ProcessControl</h1>
+          <p class="brand-tagline">Gestión de Procesos Empresariales</p>
+        </div>
+      </div>
+      <div class="header-stats">
+        <div class="stat-pill green" id="stat-green">
+          <span class="dot"></span>
+          <span id="count-green">0</span> En Tiempo
+        </div>
+        <div class="stat-pill red" id="stat-red">
+          <span class="dot"></span>
+          <span id="count-red">0</span> Excedidos
+        </div>
+        <div class="today-badge">
+          <span class="today-label">HOY</span>
+          <span id="today-date">—</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== MAIN LAYOUT ===== -->
+  <main class="app-main">
+
+    <!-- ===== PANEL IZQUIERDO: FORMULARIO ===== -->
+    <aside class="form-panel">
+      <div class="panel-header">
+        <h2 class="panel-title">Nuevo Registro</h2>
+        <p class="panel-subtitle">Ingresa los datos de la empresa a gestionar</p>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" data-tab="manual">Formulario Manual</button>
+        <button class="tab" data-tab="archivo">Carga de Archivo</button>
+      </div>
+
+      <!-- Tab: Formulario Manual -->
+      <div id="tab-manual" class="tab-content active">
+        <form id="empresa-form" novalidate>
+
+          <div class="field-group">
+            <label for="nombre">Nombre de la Empresa <span class="req">*</span></label>
+            <input type="text" id="nombre" name="nombre" placeholder="Ej. Corporación Andina S.A.S." autocomplete="off" />
+            <span class="field-error" id="err-nombre"></span>
+          </div>
+
+          <div class="field-group">
+            <label for="entrevistador">Entrevistador <span class="req">*</span></label>
+            <input type="text" id="entrevistador" name="entrevistador" placeholder="Nombre del responsable" autocomplete="off" />
+            <span class="field-error" id="err-entrevistador"></span>
+          </div>
+
+          <div class="field-row">
+            <div class="field-group">
+              <label for="fecha-inicio">Fecha de Inicio <span class="req">*</span></label>
+              <input type="date" id="fecha-inicio" name="fecha-inicio" />
+              <span class="field-error" id="err-fecha-inicio"></span>
+            </div>
+            <div class="field-group">
+              <label for="fecha-fin">Fecha de Fin <span class="req">*</span></label>
+              <input type="date" id="fecha-fin" name="fecha-fin" />
+              <span class="field-error" id="err-fecha-fin"></span>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label for="telefono">Teléfono <span class="req">*</span></label>
+            <input type="tel" id="telefono" name="telefono" placeholder="+57 300 000 0000" />
+            <span class="field-error" id="err-telefono"></span>
+          </div>
+
+          <div class="field-group">
+            <label for="correo">Correo Electrónico <span class="req">*</span></label>
+            <input type="email" id="correo" name="correo" placeholder="contacto@empresa.com" />
+            <span class="field-error" id="err-correo"></span>
+          </div>
+
+          <button type="submit" class="btn-primary" id="btn-submit">
+            <span class="btn-icon">+</span>
+            Registrar Empresa
+          </button>
+
+        </form>
+      </div>
+
+      <!-- Tab: Carga de Archivo -->
+      <div id="tab-archivo" class="tab-content">
+        <div class="upload-zone" id="drop-zone">
+          <div class="upload-icon">⬆</div>
+          <p class="upload-title">Arrastra tu archivo aquí</p>
+          <p class="upload-sub">Compatible con <strong>.json</strong> y <strong>.xlsx</strong></p>
+          <label class="btn-upload" for="file-input">Seleccionar Archivo</label>
+          <input type="file" id="file-input" accept=".json,.xlsx" hidden />
+        </div>
+        <div class="upload-format">
+          <p class="format-title">Formato JSON esperado:</p>
+          <pre class="format-code">[{
+  "nombre": "Empresa S.A.",
+  "entrevistador": "Ana Pérez",
+  "fechaInicio": "2025-01-01",
+  "fechaFin": "2025-07-30",
+  "telefono": "+57 300 0000000",
+  "correo": "ana@empresa.com"
+}]</pre>
+        </div>
+        <div id="upload-feedback" class="upload-feedback hidden"></div>
+      </div>
+
+      <!-- Toast de confirmación -->
+      <div id="toast" class="toast hidden">
+        <span class="toast-icon">✓</span>
+        <span id="toast-msg">Empresa registrada exitosamente</span>
+      </div>
+    </aside>
+
+    <!-- ===== PANEL DERECHO: DASHBOARD ===== -->
+    <section class="dashboard">
+
+      <!-- Barra de búsqueda y controles -->
+      <div class="dashboard-controls">
+        <div class="search-wrap">
+          <span class="search-icon">⌕</span>
+          <input type="text" id="search-input" placeholder="Buscar empresa o entrevistador…" />
+        </div>
+        <button class="btn-clear" id="btn-clear-all" title="Eliminar todos los registros">
+          ✕ Limpiar Todo
+        </button>
+      </div>
+
+      <!-- Columnas del semáforo -->
+      <div class="semaforo-grid">
+
+        <!-- Columna Verde -->
+        <div class="semaforo-col green-col">
+          <div class="col-header">
+            <div class="col-indicator green-ind"></div>
+            <div>
+              <h3 class="col-title">Procesos en Tiempo</h3>
+              <p class="col-desc">Vencimiento ≤ 30 días</p>
+            </div>
+            <span class="col-badge green-badge" id="badge-green">0</span>
+          </div>
+          <div class="card-list" id="list-green">
+            <div class="empty-state" id="empty-green">
+              <span class="empty-icon">◎</span>
+              <p>Sin procesos en este rango</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Columna Roja -->
+        <div class="semaforo-col red-col">
+          <div class="col-header">
+            <div class="col-indicator red-ind"></div>
+            <div>
+              <h3 class="col-title">Procesos Excedidos</h3>
+              <p class="col-desc">Vencimiento > 30 días</p>
+            </div>
+            <span class="col-badge red-badge" id="badge-red">0</span>
+          </div>
+          <div class="card-list" id="list-red">
+            <div class="empty-state" id="empty-red">
+              <span class="empty-icon">◎</span>
+              <p>Sin procesos en este rango</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal de confirmación para eliminar -->
+  <div id="modal-overlay" class="modal-overlay hidden">
+    <div class="modal">
+      <h3 class="modal-title">¿Eliminar registro?</h3>
+      <p class="modal-body" id="modal-body">Esta acción no se puede deshacer.</p>
+      <div class="modal-actions">
+        <button class="btn-modal-cancel" id="btn-modal-cancel">Cancelar</button>
+        <button class="btn-modal-confirm" id="btn-modal-confirm">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
